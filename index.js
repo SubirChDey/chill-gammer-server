@@ -26,17 +26,20 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    app.post('/review', async (req, res) => {
+      const newReview = req.body;
+      console.log(newReview);
+      const result = await reviewCollection.insertOne(newReview);
+      res.send(result);
+
+    }
+    )
     // Send a ping to confirm a successful connection
-    // await client.db("admin").command({ ping: 1 });
+    await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
     const reviewCollection = client.db('reviewDB').collection('review');
-    
-    app.post('/review', async(req, res) => {
-      const newReview = req.body;
-      console.log(newReview);
-      
-    })
 
 
   } finally {
@@ -49,10 +52,10 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Gammer')
+  res.send('Gammer')
 })
 
 app.listen(port, () => {
-    console.log('running on');
-    
+  console.log(`running on port ${port}`);
+
 })
