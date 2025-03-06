@@ -27,6 +27,13 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+    app.get('/coffee', async(req, res) => {
+      const cursor = reviewCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+
+    })
+
     app.post('/review', async (req, res) => {
       const newReview = req.body;
       console.log(newReview);
