@@ -28,8 +28,9 @@ async function run() {
     await client.connect();
 
     const reviewCollection = client.db('reviewDB').collection('review');
+    const watchlistCollection = client.db('reviewDB').collection('watchlist');
 
-    app.get('/review', async(req, res) => {
+    app.get('/review', async (req, res) => {
       const cursor = reviewCollection.find();
       const result = await cursor.toArray();
       res.send(result);
@@ -39,9 +40,15 @@ async function run() {
     app.get('/review/:id', async (req, res) => {
       const id = req.params.id
       console.log(id);
-      
-      const query = {_id: new ObjectId(id)}
+
+      const query = { _id: new ObjectId(id) }
       const result = await reviewCollection.findOne(query)
+      res.send(result)
+    })
+
+    app.get('/watchlist', async(req, res) => {
+      const cursor = watchlistCollection.find()
+      const result = await cursor.toArray()
       res.send(result)
     })
 
@@ -59,22 +66,36 @@ async function run() {
         res.status(500).send({ message: "Error fetching data", error });
       }
     });
-    
+
     // app.get('/top-reviews', async(req, res) => {
     //   const cursor = await reviewCollection.find().limit(6).sort({rating: -1}).toArray()
     //   res.send(cursor)
 
-    // })
+    // })  
 
-    
+
     app.post('/review', async (req, res) => {
-      const newReview = req.body;
-      console.log(newReview);
+      const newReview = req.body;     
       const result = await reviewCollection.insertOne(newReview);
       res.send(result);
 
-    }
-    )
+    })
+
+    app.post('/watchlist', async (req, res) => {
+      const newWatchlist = req.body;
+      console.log(newWatchlist);
+      const result = await watchlistCollection.insertOne(newWatchlist);
+      res.send(result);
+
+    })
+
+    app.delete('/review/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await reviewCollection.deleteOne(query)
+      res.send(result)
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
