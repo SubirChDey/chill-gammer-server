@@ -27,13 +27,29 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    app.get('/coffee', async(req, res) => {
+    app.get('/review', async(req, res) => {
       const cursor = reviewCollection.find();
       const result = await cursor.toArray();
       res.send(result);
 
     })
 
+    // Fetch top 6 highest-rated games
+    app.get('/highest-rated-games', async (req, res) => {
+      try {
+        const games = await reviewCollection
+          .find()
+          .sort({ rating: -1 }) 
+          .limit(6)
+          .toArray();
+
+        res.send(games);
+      } catch (error) {
+        res.status(500).send({ message: "Error fetching data", error });
+      }
+    });
+
+    
     app.post('/review', async (req, res) => {
       const newReview = req.body;
       console.log(newReview);
