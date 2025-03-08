@@ -46,7 +46,7 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/watchlist', async(req, res) => {
+    app.get('/watchlist', async (req, res) => {
       const cursor = watchlistCollection.find()
       const result = await cursor.toArray()
       res.send(result)
@@ -67,15 +67,16 @@ async function run() {
       }
     });
 
-    // app.get('/top-reviews', async(req, res) => {
-    //   const cursor = await reviewCollection.find().limit(6).sort({rating: -1}).toArray()
-    //   res.send(cursor)
+    app.get('/review/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await reviewCollection.findOne(query);
 
-    // })  
+    })
 
 
     app.post('/review', async (req, res) => {
-      const newReview = req.body;     
+      const newReview = req.body;
       const result = await reviewCollection.insertOne(newReview);
       res.send(result);
 
@@ -89,9 +90,29 @@ async function run() {
 
     })
 
-    app.delete('/review/:id', async(req, res) => {
+    app.put('/review/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true };
+      const updatedReview = req.body;
+      const review = {
+        $set: {
+          gameCover: updatedReview.gameCover,
+          gameTitle: updatedReview.gameTitle,
+          reviewDescription: updatedReview.reviewDescription,
+          rating: updatedReview.rating,
+          publishingYear: updatedReview.publishingYear,
+          genre: updatedReview.genre,
+        }
+      }
+      const result = await reviewCollection.updateOne(filter, review, options )
+      res.send(result)
+
+    })
+
+    app.delete('/review/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
       const result = await reviewCollection.deleteOne(query)
       res.send(result)
     })
