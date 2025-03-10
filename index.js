@@ -40,7 +40,6 @@ async function run() {
     app.get('/review/:id', async (req, res) => {
       const id = req.params.id
       console.log(id);
-
       const query = { _id: new ObjectId(id) }
       const result = await reviewCollection.findOne(query)
       res.send(result)
@@ -60,19 +59,35 @@ async function run() {
           .sort({ rating: -1 })
           .limit(6)
           .toArray();
-
         res.send(games);
       } catch (error) {
         res.status(500).send({ message: "Error fetching data", error });
       }
     });
 
-    app.get('/review/:id', async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) }
-      const result = await reviewCollection.findOne(query);
-
+    app.get('/latest-games', async(req, res) => {
+      try {
+        const games = await reviewCollection
+        .find()
+        .sort({publishingYear: -1})
+        .toArray()
+        res.send(games)        
+      }
+      catch (error) {
+        res.status(500).send({message: "Error fetching data", error});
+      }
     })
+  
+
+    app.get('/watchlist/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: id };
+      const result = await watchlistCollection.findOne(query);
+      console.log(result);
+      res.send(result)
+      
+    });
+
 
 
     app.post('/review', async (req, res) => {
@@ -105,15 +120,24 @@ async function run() {
           genre: updatedReview.genre,
         }
       }
-      const result = await reviewCollection.updateOne(filter, review, options )
+      const result = await reviewCollection.updateOne(filter, review, options)
       res.send(result)
 
     })
 
+    // review delete
     app.delete('/review/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) }
       const result = await reviewCollection.deleteOne(query)
+      res.send(result)
+    })
+
+    // watchlist delete
+    app.delete('/watchlist/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: id }
+      const result = await watchlistCollection.deleteOne(query)
       res.send(result)
     })
 
